@@ -1,0 +1,728 @@
+
+CREATE TABLE department (
+    departmentid INTEGER PRIMARY KEY,
+    name VARCHAR(50),
+    head INTEGER
+);
+
+CREATE TABLE physician (
+    employeeid INTEGER PRIMARY KEY,
+    name VARCHAR(50),
+    position VARCHAR(50),
+    ssn INTEGER
+);
+
+CREATE TABLE affiliated_with (
+    physician INTEGER,
+    department INTEGER,
+    primaryaffiliation BOOLEAN,
+    PRIMARY KEY (physician, department),
+    FOREIGN KEY (physician) REFERENCES physician(employeeid),
+    FOREIGN KEY (department) REFERENCES department(departmentid)
+);
+
+CREATE TABLE patient (
+    ssn INTEGER PRIMARY KEY,
+    name VARCHAR(50),
+    address VARCHAR(200),
+    phone VARCHAR(15),
+    insuranceid INTEGER,
+    pcp INTEGER,
+    FOREIGN KEY (pcp) REFERENCES physician(employeeid)
+);
+
+CREATE TABLE medication (
+    code INTEGER PRIMARY KEY,
+    name VARCHAR(50),
+    brand VARCHAR(50),
+    description VARCHAR(200)
+);
+CREATE TABLE appointment (
+    appointmentid INTEGER PRIMARY KEY,
+    patient INTEGER,
+    prepurse INTEGER,
+    physician INTEGER,
+    start_dt_time DATE,
+    end_dt_time DATE,
+    examinationroom INTEGER,
+    FOREIGN KEY (patient) REFERENCES patient(ssn),
+    FOREIGN KEY (physician) REFERENCES physician(employeeid)
+);
+
+CREATE TABLE prescribes (
+    physician INTEGER,
+    patient INTEGER,
+    medication INTEGER,
+    date DATE,
+    appointment INTEGER,
+    dose VARCHAR(50),
+    PRIMARY KEY (physician, patient, medication, date),
+    FOREIGN KEY (physician) REFERENCES physician(employeeid),
+    FOREIGN KEY (patient) REFERENCES patient(ssn),
+    FOREIGN KEY (medication) REFERENCES medication(code),
+    FOREIGN KEY (appointment) REFERENCES appointment(appointmentid)
+);
+
+CREATE TABLE procedure (
+    code INTEGER PRIMARY KEY,
+    name VARCHAR(50),
+    cost REAL
+);
+
+CREATE TABLE trained_in (
+    physician INTEGER,
+    treatment INTEGER,
+    certificationdate DATE,
+    certificationexpires DATE,
+    PRIMARY KEY (physician, treatment),
+    FOREIGN KEY (physician) REFERENCES physician(employeeid),
+    FOREIGN KEY (treatment) REFERENCES procedure(code)
+);
+
+CREATE TABLE nurse (
+    employeeid INTEGER PRIMARY KEY,
+    name VARCHAR(50),
+    position VARCHAR(50),
+    registered BOOLEAN,
+    ssn INTEGER
+);
+
+CREATE TABLE block (
+    blockfloor INTEGER,
+    blockcode INTEGER,
+    PRIMARY KEY (blockfloor, blockcode)
+);
+
+CREATE TABLE room (
+    roomnumber INTEGER PRIMARY KEY,
+    roomtype VARCHAR(50),
+    blockfloor INTEGER,
+    blockcode INTEGER,
+    unavailable BOOLEAN,
+    FOREIGN KEY (blockfloor, blockcode) REFERENCES block(blockfloor, blockcode)
+);
+
+CREATE TABLE on_call (
+    nurse INTEGER,
+    blockfloor INTEGER,
+    blockcode INTEGER,
+    oncallstart DATE,
+    oncallend DATE,
+    PRIMARY KEY (nurse, blockfloor, blockcode, oncallstart, oncallend),
+    FOREIGN KEY (nurse) REFERENCES nurse(employeeid),
+    FOREIGN KEY (blockfloor, blockcode) REFERENCES block(blockfloor, blockcode)
+);
+
+CREATE TABLE stay (
+    stayid INTEGER PRIMARY KEY,
+    patient INTEGER,
+    room INTEGER,
+    start_time DATE,
+    end_time DATE,
+    FOREIGN KEY (patient) REFERENCES patient(ssn),
+    FOREIGN KEY (room) REFERENCES room(roomnumber)
+);
+
+CREATE TABLE undergoes (
+    patient INTEGER,
+    procedure INTEGER,
+    stay INTEGER,
+    date DATE,
+    physician INTEGER,
+    assistingnurse INTEGER,
+    PRIMARY KEY (patient, procedure, stay, date),
+    FOREIGN KEY (patient) REFERENCES patient(ssn),
+    FOREIGN KEY (procedure) REFERENCES procedure(code),
+    FOREIGN KEY (stay) REFERENCES stay(stayid),
+    FOREIGN KEY (physician) REFERENCES physician(employeeid),
+    FOREIGN KEY (assistingnurse) REFERENCES nurse(employeeid)
+);
+
+-- Department table
+INSERT INTO department (departmentid, name, head) VALUES (1, 'Cardiology', 1);
+INSERT INTO department (departmentid, name, head) VALUES (2, 'Neurology', 2);
+INSERT INTO department (departmentid, name, head) VALUES (3, 'Oncology', 3);
+INSERT INTO department (departmentid, name, head) VALUES (4, 'Pediatrics', 4);
+INSERT INTO department (departmentid, name, head) VALUES (5, 'Orthopedics', 5);
+INSERT INTO department (departmentid, name, head) VALUES (6, 'Gastroenterology', 6);
+INSERT INTO department (departmentid, name, head) VALUES (7, 'Pulmonology', 7);
+INSERT INTO department (departmentid, name, head) VALUES (8, 'Endocrinology', 8);
+INSERT INTO department (departmentid, name, head) VALUES (9, 'Radiology', 9);
+INSERT INTO department (departmentid, name, head) VALUES (10, 'Dermatology', 10);
+INSERT INTO department (departmentid, name, head) VALUES (11, 'Urology', 11);
+INSERT INTO department (departmentid, name, head) VALUES (12, 'Ophthalmology', 12);
+INSERT INTO department (departmentid, name, head) VALUES (13, 'ENT', 13);
+INSERT INTO department (departmentid, name, head) VALUES (14, 'Psychiatry', 14);
+INSERT INTO department (departmentid, name, head) VALUES (15, 'Anesthesiology', 15);
+INSERT INTO department (departmentid, name, head) VALUES (16, 'Pathology', 16);
+INSERT INTO department (departmentid, name, head) VALUES (17, 'Emergency Medicine', 17);
+INSERT INTO department (departmentid, name, head) VALUES (18, 'Family Medicine', 18);
+INSERT INTO department (departmentid, name, head) VALUES (19, 'Internal Medicine', 19);
+INSERT INTO department (departmentid, name, head) VALUES (20, 'General Surgery', 20);
+
+-- Physician table 
+INSERT INTO physician (employeeid, name, position, ssn) VALUES (1, 'Dr. John Smith', 'Cardiologist', 111111111);
+INSERT INTO physician (employeeid, name, position, ssn) VALUES (2, 'Dr. Jane Doe', 'Neurologist', 222222222);
+INSERT INTO physician (employeeid, name, position, ssn) VALUES (3, 'Dr. Robert Johnson', 'Oncologist', 333333333);
+INSERT INTO physician (employeeid, name, position, ssn) VALUES (4, 'Dr. Emily Williams', 'Pediatrician', 444444444);
+INSERT INTO physician (employeeid, name, position, ssn) VALUES (5, 'Dr. Michael Brown', 'Orthopedic Surgeon', 555555555);
+INSERT INTO physician (employeeid, name, position, ssn) VALUES (6, 'Dr. Sarah Davis', 'Gastroenterologist', 666666666);
+INSERT INTO physician (employeeid, name, position, ssn) VALUES (7, 'Dr. David Miller', 'Pulmonologist', 777777777);
+INSERT INTO physician (employeeid, name, position, ssn) VALUES (8, 'Dr. Jennifer Wilson', 'Endocrinologist', 888888888);
+INSERT INTO physician (employeeid, name, position, ssn) VALUES (9, 'Dr. Richard Moore', 'Radiologist', 999999999);
+INSERT INTO physician (employeeid, name, position, ssn) VALUES (10, 'Dr. Lisa Taylor', 'Dermatologist', 101010101);
+INSERT INTO physician (employeeid, name, position, ssn) VALUES (11, 'Dr. Thomas Anderson', 'Urologist', 121212121);
+INSERT INTO physician (employeeid, name, position, ssn) VALUES (12, 'Dr. Nancy Thomas', 'Ophthalmologist', 131313131);
+INSERT INTO physician (employeeid, name, position, ssn) VALUES (13, 'Dr. Daniel Jackson', 'ENT Specialist', 141414141);
+INSERT INTO physician (employeeid, name, position, ssn) VALUES (14, 'Dr. Karen White', 'Psychiatrist', 151515151);
+INSERT INTO physician (employeeid, name, position, ssn) VALUES (15, 'Dr. Christopher Harris', 'Anesthesiologist', 161616161);
+INSERT INTO physician (employeeid, name, position, ssn) VALUES (16, 'Dr. Amanda Martin', 'Pathologist', 171717171);
+INSERT INTO physician (employeeid, name, position, ssn) VALUES (17, 'Dr. Matthew Thompson', 'Emergency Physician', 181818181);
+INSERT INTO physician (employeeid, name, position, ssn) VALUES (18, 'Dr. Stephanie Garcia', 'Family Physician', 191919191);
+INSERT INTO physician (employeeid, name, position, ssn) VALUES (19, 'Dr. Kevin Martinez', 'Internist', 202020202);
+INSERT INTO physician (employeeid, name, position, ssn) VALUES (20, 'Dr. Jessica Robinson', 'General Surgeon', 212121212);
+
+-- Nurse table 
+INSERT INTO nurse (employeeid, name, position, registered, ssn) VALUES (1, 'Nurse Amy Pond', 'RN', 1, 333333333);
+INSERT INTO nurse (employeeid, name, position, registered, ssn) VALUES (2, 'Nurse Rory Williams', 'LPN', 0, 444444444);
+INSERT INTO nurse (employeeid, name, position, registered, ssn) VALUES (3, 'Nurse Clara Oswald', 'RN', 1, 555555555);
+INSERT INTO nurse (employeeid, name, position, registered, ssn) VALUES (4, 'Nurse Martha Jones', 'LPN', 0, 666666666);
+INSERT INTO nurse (employeeid, name, position, registered, ssn) VALUES (5, 'Nurse Donna Noble', 'RN', 1, 777777777);
+INSERT INTO nurse (employeeid, name, position, registered, ssn) VALUES (6, 'Nurse Rose Tyler', 'RN', 1, 888888888);
+INSERT INTO nurse (employeeid, name, position, registered, ssn) VALUES (7, 'Nurse River Song', 'NP', 1, 999999999);
+INSERT INTO nurse (employeeid, name, position, registered, ssn) VALUES (8, 'Nurse Jackie Tyler', 'LPN', 0, 101010101);
+INSERT INTO nurse (employeeid, name, position, registered, ssn) VALUES (9, 'Nurse Sarah Jane Smith', 'RN', 1, 121212121);
+INSERT INTO nurse (employeeid, name, position, registered, ssn) VALUES (10, 'Nurse Jo Grant', 'LPN', 0, 131313131);
+INSERT INTO nurse (employeeid, name, position, registered, ssn) VALUES (11, 'Nurse Liz Shaw', 'RN', 1, 141414141);
+INSERT INTO nurse (employeeid, name, position, registered, ssn) VALUES (12, 'Nurse Leela', 'LPN', 0, 151515151);
+INSERT INTO nurse (employeeid, name, position, registered, ssn) VALUES (13, 'Nurse Romana', 'RN', 1, 161616161);
+INSERT INTO nurse (employeeid, name, position, registered, ssn) VALUES (14, 'Nurse Nyssa', 'NP', 1, 171717171);
+INSERT INTO nurse (employeeid, name, position, registered, ssn) VALUES (15, 'Nurse Tegan Jovanka', 'RN', 1, 181818181);
+INSERT INTO nurse (employeeid, name, position, registered, ssn) VALUES (16, 'Nurse Peri Brown', 'LPN', 0, 191919191);
+INSERT INTO nurse (employeeid, name, position, registered, ssn) VALUES (17, 'Nurse Mel Bush', 'RN', 1, 202020202);
+INSERT INTO nurse (employeeid, name, position, registered, ssn) VALUES (18, 'Nurse Ace McShane', 'LPN', 0, 212121212);
+INSERT INTO nurse (employeeid, name, position, registered, ssn) VALUES (19, 'Nurse Grace Holloway', 'RN', 1, 232323232);
+INSERT INTO nurse (employeeid, name, position, registered, ssn) VALUES (20, 'Nurse Chang Lee', 'LPN', 0, 242424242);
+
+--Records for affiliated_with
+INSERT INTO affiliated_with (physician, department, primaryaffiliation) VALUES (1, 1, 1);
+INSERT INTO affiliated_with (physician, department, primaryaffiliation) VALUES (2, 2, 1);
+INSERT INTO affiliated_with (physician, department, primaryaffiliation) VALUES (3, 3, 1);
+INSERT INTO affiliated_with (physician, department, primaryaffiliation) VALUES (4, 4, 1);
+INSERT INTO affiliated_with (physician, department, primaryaffiliation) VALUES (5, 5, 1);
+INSERT INTO affiliated_with (physician, department, primaryaffiliation) VALUES (6, 6, 1);
+INSERT INTO affiliated_with (physician, department, primaryaffiliation) VALUES (7, 7, 1);
+INSERT INTO affiliated_with (physician, department, primaryaffiliation) VALUES (8, 8, 1);
+INSERT INTO affiliated_with (physician, department, primaryaffiliation) VALUES (9, 9, 1);
+INSERT INTO affiliated_with (physician, department, primaryaffiliation) VALUES (10, 10, 1);
+INSERT INTO affiliated_with (physician, department, primaryaffiliation) VALUES (11, 11, 0);
+INSERT INTO affiliated_with (physician, department, primaryaffiliation) VALUES (12, 12, 0);
+INSERT INTO affiliated_with (physician, department, primaryaffiliation) VALUES (13, 13, 0);
+INSERT INTO affiliated_with (physician, department, primaryaffiliation) VALUES (14, 14, 0);
+INSERT INTO affiliated_with (physician, department, primaryaffiliation) VALUES (15, 15, 0);
+INSERT INTO affiliated_with (physician, department, primaryaffiliation) VALUES (16, 16, 0);
+INSERT INTO affiliated_with (physician, department, primaryaffiliation) VALUES (17, 17, 0);
+INSERT INTO affiliated_with (physician, department, primaryaffiliation) VALUES (18, 18, 0);
+INSERT INTO affiliated_with (physician, department, primaryaffiliation) VALUES (19, 19, 0);
+INSERT INTO affiliated_with (physician, department, primaryaffiliation) VALUES (20, 20, 0);
+
+--Records for block
+INSERT INTO block (blockfloor, blockcode) VALUES (1, 101);
+INSERT INTO block (blockfloor, blockcode) VALUES (1, 102);
+INSERT INTO block (blockfloor, blockcode) VALUES (1, 103);
+INSERT INTO block (blockfloor, blockcode) VALUES (2, 201);
+INSERT INTO block (blockfloor, blockcode) VALUES (2, 202);
+INSERT INTO block (blockfloor, blockcode) VALUES (2, 203);
+INSERT INTO block (blockfloor, blockcode) VALUES (3, 301);
+INSERT INTO block (blockfloor, blockcode) VALUES (3, 302);
+INSERT INTO block (blockfloor, blockcode) VALUES (3, 303);
+INSERT INTO block (blockfloor, blockcode) VALUES (4, 401);
+INSERT INTO block (blockfloor, blockcode) VALUES (4, 402);
+INSERT INTO block (blockfloor, blockcode) VALUES (4, 403);
+INSERT INTO block (blockfloor, blockcode) VALUES (5, 501);
+INSERT INTO block (blockfloor, blockcode) VALUES (5, 502);
+INSERT INTO block (blockfloor, blockcode) VALUES (5, 503);
+INSERT INTO block (blockfloor, blockcode) VALUES (6, 601);
+INSERT INTO block (blockfloor, blockcode) VALUES (6, 602);
+INSERT INTO block (blockfloor, blockcode) VALUES (6, 603);
+INSERT INTO block (blockfloor, blockcode) VALUES (7, 701);
+INSERT INTO block (blockfloor, blockcode) VALUES (7, 702);
+
+--Records for room
+INSERT INTO room (roomnumber, roomtype, blockfloor, blockcode, unavailable) VALUES (101, 'Single', 1, 101, 0);
+INSERT INTO room (roomnumber, roomtype, blockfloor, blockcode, unavailable) VALUES (102, 'Single', 1, 101, 0);
+INSERT INTO room (roomnumber, roomtype, blockfloor, blockcode, unavailable) VALUES (103, 'Double', 1, 102, 0);
+INSERT INTO room (roomnumber, roomtype, blockfloor, blockcode, unavailable) VALUES (104, 'Double', 1, 102, 1);
+INSERT INTO room (roomnumber, roomtype, blockfloor, blockcode, unavailable) VALUES (201, 'Single', 2, 201, 0);
+INSERT INTO room (roomnumber, roomtype, blockfloor, blockcode, unavailable) VALUES (202, 'Single', 2, 201, 0);
+INSERT INTO room (roomnumber, roomtype, blockfloor, blockcode, unavailable) VALUES (203, 'Double', 2, 202, 1);
+INSERT INTO room (roomnumber, roomtype, blockfloor, blockcode, unavailable) VALUES (204, 'Double', 2, 202, 0);
+INSERT INTO room (roomnumber, roomtype, blockfloor, blockcode, unavailable) VALUES (301, 'Single', 3, 301, 0);
+INSERT INTO room (roomnumber, roomtype, blockfloor, blockcode, unavailable) VALUES (302, 'Single', 3, 301, 1);
+INSERT INTO room (roomnumber, roomtype, blockfloor, blockcode, unavailable) VALUES (303, 'Double', 3, 302, 0);
+INSERT INTO room (roomnumber, roomtype, blockfloor, blockcode, unavailable) VALUES (304, 'Double', 3, 302, 0);
+INSERT INTO room (roomnumber, roomtype, blockfloor, blockcode, unavailable) VALUES (401, 'Single', 4, 401, 0);
+INSERT INTO room (roomnumber, roomtype, blockfloor, blockcode, unavailable) VALUES (402, 'Single', 4, 401, 1);
+INSERT INTO room (roomnumber, roomtype, blockfloor, blockcode, unavailable) VALUES (403, 'Double', 4, 402, 0);
+INSERT INTO room (roomnumber, roomtype, blockfloor, blockcode, unavailable) VALUES (404, 'Double', 4, 402, 0);
+INSERT INTO room (roomnumber, roomtype, blockfloor, blockcode, unavailable) VALUES (501, 'ICU', 5, 501, 0);
+INSERT INTO room (roomnumber, roomtype, blockfloor, blockcode, unavailable) VALUES (502, 'ICU', 5, 501, 0);
+INSERT INTO room (roomnumber, roomtype, blockfloor, blockcode, unavailable) VALUES (503, 'ICU', 5, 502, 1);
+INSERT INTO room (roomnumber, roomtype, blockfloor, blockcode, unavailable) VALUES (504, 'ICU', 5, 502, 0);
+
+--Records for patient
+INSERT INTO patient (ssn, name, address, phone, insuranceid, pcp) VALUES (100000001, 'John Smith', '42 Fern St, Boston MA', '555-0101', 68476213, 1);
+INSERT INTO patient (ssn, name, address, phone, insuranceid, pcp) VALUES (100000002, 'Grace Wong', '12 Maple Ave, Cambridge MA', '555-0102', 36546321, 2);
+INSERT INTO patient (ssn, name, address, phone, insuranceid, pcp) VALUES (100000003, 'Robert Johnson', '85 Pine Rd, Somerville MA', '555-0103', 65465421, 3);
+INSERT INTO patient (ssn, name, address, phone, insuranceid, pcp) VALUES (100000004, 'Maria Garcia', '32 Oak St, Medford MA', '555-0104', 68413654, 4);
+INSERT INTO patient (ssn, name, address, phone, insuranceid, pcp) VALUES (100000005, 'James Wilson', '16 Birch Ln, Malden MA', '555-0105', 54316847, 5);
+INSERT INTO patient (ssn, name, address, phone, insuranceid, pcp) VALUES (100000006, 'Patricia Lee', '28 Cedar Blvd, Revere MA', '555-0106', 87496546, 6);
+INSERT INTO patient (ssn, name, address, phone, insuranceid, pcp) VALUES (100000007, 'Michael Brown', '74 Willow Dr, Everett MA', '555-0107', 36498657, 7);
+INSERT INTO patient (ssn, name, address, phone, insuranceid, pcp) VALUES (100000008, 'Linda Martinez', '55 Spruce Ct, Chelsea MA', '555-0108', 65432187, 8);
+INSERT INTO patient (ssn, name, address, phone, insuranceid, pcp) VALUES (100000009, 'William Taylor', '63 Elm St, Winthrop MA', '555-0109', 32168749, 9);
+INSERT INTO patient (ssn, name, address, phone, insuranceid, pcp) VALUES (100000010, 'Elizabeth Davis', '91 Cherry Ln, Quincy MA', '555-0110', 65487321, 10);
+INSERT INTO patient (ssn, name, address, phone, insuranceid, pcp) VALUES (100000011, 'David Rodriguez', '37 Ash Rd, Milton MA', '555-0111', 13216549, 11);
+INSERT INTO patient (ssn, name, address, phone, insuranceid, pcp) VALUES (100000012, 'Jennifer Kim', '24 Poplar Ave, Dorchester MA', '555-0112', 65432154, 12);
+INSERT INTO patient (ssn, name, address, phone, insuranceid, pcp) VALUES (100000013, 'Richard Moore', '18 Beech St, Roxbury MA', '555-0113', 49873216, 13);
+INSERT INTO patient (ssn, name, address, phone, insuranceid, pcp) VALUES (100000014, 'Susan Jackson', '29 Locust Blvd, Jamaica Plain MA', '555-0114', 21654987, 14);
+INSERT INTO patient (ssn, name, address, phone, insuranceid, pcp) VALUES (100000015, 'Joseph White', '41 Walnut Dr, Roslindale MA', '555-0115', 65789432, 15);
+INSERT INTO patient (ssn, name, address, phone, insuranceid, pcp) VALUES (100000016, 'Margaret Harris', '67 Sycamore Ct, Hyde Park MA', '555-0116', 32165498, 16);
+INSERT INTO patient (ssn, name, address, phone, insuranceid, pcp) VALUES (100000017, 'Thomas Martin', '53 Cypress Rd, West Roxbury MA', '555-0117', 98746513, 17);
+INSERT INTO patient (ssn, name, address, phone, insuranceid, pcp) VALUES (100000018, 'Dorothy Thompson', '82 Juniper Ln, Brighton MA', '555-0118', 65432198, 18);
+INSERT INTO patient (ssn, name, address, phone, insuranceid, pcp) VALUES (100000019, 'Charles Robinson', '47 Hemlock St, Allston MA', '555-0119', 32165487, 19);
+INSERT INTO patient (ssn, name, address, phone, insuranceid, pcp) VALUES (100000020, 'Barbara Clark', '15 Linden Ave, Brookline MA', '555-0120', 98765431, 20);
+
+--Records for procedure
+INSERT INTO procedure (code, name, cost) VALUES (1, 'Appendectomy', 7500.00);
+INSERT INTO procedure (code, name, cost) VALUES (2, 'Coronary Bypass', 85000.00);
+INSERT INTO procedure (code, name, cost) VALUES (3, 'CT Scan', 1200.00);
+INSERT INTO procedure (code, name, cost) VALUES (4, 'MRI', 1500.00);
+INSERT INTO procedure (code, name, cost) VALUES (5, 'X-Ray', 350.00);
+INSERT INTO procedure (code, name, cost) VALUES (6, 'Blood Test', 75.00);
+INSERT INTO procedure (code, name, cost) VALUES (7, 'Colonoscopy', 2200.00);
+INSERT INTO procedure (code, name, cost) VALUES (8, 'Endoscopy', 1800.00);
+INSERT INTO procedure (code, name, cost) VALUES (9, 'Biopsy', 1600.00);
+INSERT INTO procedure (code, name, cost) VALUES (10, 'Cataract Surgery', 4200.00);
+INSERT INTO procedure (code, name, cost) VALUES (11, 'Tonsillectomy', 3500.00);
+INSERT INTO procedure (code, name, cost) VALUES (12, 'Hernia Repair', 5800.00);
+INSERT INTO procedure (code, name, cost) VALUES (13, 'Knee Replacement', 24000.00);
+INSERT INTO procedure (code, name, cost) VALUES (14, 'Hip Replacement', 28000.00);
+INSERT INTO procedure (code, name, cost) VALUES (15, 'Cardiac Catheterization', 9500.00);
+INSERT INTO procedure (code, name, cost) VALUES (16, 'Mammogram', 250.00);
+INSERT INTO procedure (code, name, cost) VALUES (17, 'Ultrasound', 400.00);
+INSERT INTO procedure (code, name, cost) VALUES (18, 'Physical Therapy (session)', 120.00);
+INSERT INTO procedure (code, name, cost) VALUES (19, 'Dialysis (session)', 800.00);
+INSERT INTO procedure (code, name, cost) VALUES (20, 'Chemotherapy (session)', 1800.00);
+
+--Records for trained_in
+INSERT INTO trained_in (physician, treatment, certificationdate, certificationexpires) VALUES (1, 1, '2021-05-15', '2026-05-15');
+INSERT INTO trained_in (physician, treatment, certificationdate, certificationexpires) VALUES (2, 2, '2020-06-10', '2025-06-10');
+INSERT INTO trained_in (physician, treatment, certificationdate, certificationexpires) VALUES (3, 3, '2022-03-22', '2027-03-22');
+INSERT INTO trained_in (physician, treatment, certificationdate, certificationexpires) VALUES (4, 4, '2021-09-08', '2026-09-08');
+INSERT INTO trained_in (physician, treatment, certificationdate, certificationexpires) VALUES (5, 5, '2023-01-30', '2028-01-30');
+INSERT INTO trained_in (physician, treatment, certificationdate, certificationexpires) VALUES (6, 6, '2022-11-12', '2027-11-12');
+INSERT INTO trained_in (physician, treatment, certificationdate, certificationexpires) VALUES (7, 7, '2020-08-05', '2025-08-05');
+INSERT INTO trained_in (physician, treatment, certificationdate, certificationexpires) VALUES (8, 8, '2021-02-14', '2026-02-14');
+INSERT INTO trained_in (physician, treatment, certificationdate, certificationexpires) VALUES (9, 9, '2022-07-23', '2027-07-23');
+INSERT INTO trained_in (physician, treatment, certificationdate, certificationexpires) VALUES (10, 10, '2023-04-18', '2028-04-18');
+INSERT INTO trained_in (physician, treatment, certificationdate, certificationexpires) VALUES (11, 11, '2020-12-01', '2025-12-01');
+INSERT INTO trained_in (physician, treatment, certificationdate, certificationexpires) VALUES (12, 12, '2022-05-19', '2027-05-19');
+INSERT INTO trained_in (physician, treatment, certificationdate, certificationexpires) VALUES (13, 13, '2021-10-31', '2026-10-31');
+INSERT INTO trained_in (physician, treatment, certificationdate, certificationexpires) VALUES (14, 14, '2023-03-15', '2028-03-15');
+INSERT INTO trained_in (physician, treatment, certificationdate, certificationexpires) VALUES (15, 15, '2022-09-22', '2027-09-22');
+INSERT INTO trained_in (physician, treatment, certificationdate, certificationexpires) VALUES (16, 16, '2021-04-07', '2026-04-07');
+INSERT INTO trained_in (physician, treatment, certificationdate, certificationexpires) VALUES (17, 17, '2023-01-14', '2028-01-14');
+INSERT INTO trained_in (physician, treatment, certificationdate, certificationexpires) VALUES (18, 18, '2022-06-28', '2027-06-28');
+INSERT INTO trained_in (physician, treatment, certificationdate, certificationexpires) VALUES (19, 19, '2021-11-05', '2026-11-05');
+INSERT INTO trained_in (physician, treatment, certificationdate, certificationexpires) VALUES (20, 20, '2023-02-17', '2028-02-17');
+
+--Records for medication
+INSERT INTO medication (code, name, brand, description) VALUES (1, 'Lisinopril', 'Prinivil', 'ACE inhibitor for hypertension');
+INSERT INTO medication (code, name, brand, description) VALUES (2, 'Metformin', 'Glucophage', 'Oral diabetes medication');
+INSERT INTO medication (code, name, brand, description) VALUES (3, 'Atorvastatin', 'Lipitor', 'Statin medication for cholesterol control');
+INSERT INTO medication (code, name, brand, description) VALUES (4, 'Levothyroxine', 'Synthroid', 'Thyroid hormone replacement');
+INSERT INTO medication (code, name, brand, description) VALUES (5, 'Amlodipine', 'Norvasc', 'Calcium channel blocker for hypertension');
+INSERT INTO medication (code, name, brand, description) VALUES (6, 'Metoprolol', 'Lopressor', 'Beta blocker for hypertension and angina');
+INSERT INTO medication (code, name, brand, description) VALUES (7, 'Omeprazole', 'Prilosec', 'Proton pump inhibitor for acid reflux');
+INSERT INTO medication (code, name, brand, description) VALUES (8, 'Losartan', 'Cozaar', 'Angiotensin II receptor blocker for hypertension');
+INSERT INTO medication (code, name, brand, description) VALUES (9, 'Albuterol', 'Proventil', 'Bronchodilator for asthma');
+INSERT INTO medication (code, name, brand, description) VALUES (10, 'Gabapentin', 'Neurontin', 'Anticonvulsant for neuropathic pain');
+INSERT INTO medication (code, name, brand, description) VALUES (11, 'Hydrochlorothiazide', 'Microzide', 'Diuretic for hypertension');
+INSERT INTO medication (code, name, brand, description) VALUES (12, 'Sertraline', 'Zoloft', 'SSRI antidepressant');
+INSERT INTO medication (code, name, brand, description) VALUES (13, 'Amoxicillin', 'Amoxil', 'Antibiotic for bacterial infections');
+INSERT INTO medication (code, name, brand, description) VALUES (14, 'Prednisone', 'Deltasone', 'Corticosteroid anti-inflammatory');
+INSERT INTO medication (code, name, brand, description) VALUES (15, 'Fluticasone', 'Flonase', 'Corticosteroid nasal spray for allergies');
+INSERT INTO medication (code, name, brand, description) VALUES (16, 'Furosemide', 'Lasix', 'Loop diuretic for edema and hypertension');
+INSERT INTO medication (code, name, brand, description) VALUES (17, 'Insulin Glargine', 'Lantus', 'Long-acting insulin for diabetes');
+INSERT INTO medication (code, name, brand, description) VALUES (18, 'Warfarin', 'Coumadin', 'Anticoagulant to prevent blood clots');
+INSERT INTO medication (code, name, brand, description) VALUES (19, 'Citalopram', 'Celexa', 'SSRI antidepressant');
+INSERT INTO medication (code, name, brand, description) VALUES (20, 'Azithromycin', 'Zithromax', 'Macrolide antibiotic');
+
+--Records for appointment
+INSERT INTO appointment (appointmentid, patient, prepurse, physician, start_dt_time, end_dt_time, examinationroom) VALUES (1, 100000001, 1, 1, '2025-04-25 09:00:00', '2025-04-25 09:30:00', 101);
+INSERT INTO appointment (appointmentid, patient, prepurse, physician, start_dt_time, end_dt_time, examinationroom) VALUES (2, 100000002, 2, 2, '2025-04-25 10:00:00', '2025-04-25 10:30:00', 102);
+INSERT INTO appointment (appointmentid, patient, prepurse, physician, start_dt_time, end_dt_time, examinationroom) VALUES (3, 100000003, 3, 3, '2025-04-25 11:00:00', '2025-04-25 11:30:00', 103);
+INSERT INTO appointment (appointmentid, patient, prepurse, physician, start_dt_time, end_dt_time, examinationroom) VALUES (4, 100000004, 4, 4, '2025-04-25 13:00:00', '2025-04-25 13:30:00', 104);
+INSERT INTO appointment (appointmentid, patient, prepurse, physician, start_dt_time, end_dt_time, examinationroom) VALUES (5, 100000005, 5, 5, '2025-04-25 14:00:00', '2025-04-25 14:30:00', 105);
+INSERT INTO appointment (appointmentid, patient, prepurse, physician, start_dt_time, end_dt_time, examinationroom) VALUES (6, 100000006, 6, 6, '2025-04-26 09:00:00', '2025-04-26 09:30:00', 101);
+INSERT INTO appointment (appointmentid, patient, prepurse, physician, start_dt_time, end_dt_time, examinationroom) VALUES (7, 100000007, 7, 7, '2025-04-26 10:00:00', '2025-04-26 10:30:00', 102);
+INSERT INTO appointment (appointmentid, patient, prepurse, physician, start_dt_time, end_dt_time, examinationroom) VALUES (8, 100000008, 8, 8, '2025-04-26 11:00:00', '2025-04-26 11:30:00', 103);
+INSERT INTO appointment (appointmentid, patient, prepurse, physician, start_dt_time, end_dt_time, examinationroom) VALUES (9, 100000009, 9, 9, '2025-04-26 13:00:00', '2025-04-26 13:30:00', 104);
+INSERT INTO appointment (appointmentid, patient, prepurse, physician, start_dt_time, end_dt_time, examinationroom) VALUES (10, 100000010, 10, 10, '2025-04-26 14:00:00', '2025-04-26 14:30:00', 105);
+INSERT INTO appointment (appointmentid, patient, prepurse, physician, start_dt_time, end_dt_time, examinationroom) VALUES (11, 100000011, 11, 11, '2025-04-27 09:00:00', '2025-04-27 09:30:00', 101);
+INSERT INTO appointment (appointmentid, patient, prepurse, physician, start_dt_time, end_dt_time, examinationroom) VALUES (12, 100000012, 12, 12, '2025-04-27 10:00:00', '2025-04-27 10:30:00', 102);
+INSERT INTO appointment (appointmentid, patient, prepurse, physician, start_dt_time, end_dt_time, examinationroom) VALUES (13, 100000013, 13, 13, '2025-04-27 11:00:00', '2025-04-27 11:30:00', 103);
+INSERT INTO appointment (appointmentid, patient, prepurse, physician, start_dt_time, end_dt_time, examinationroom) VALUES (14, 100000014, 14, 14, '2025-04-27 13:00:00', '2025-04-27 13:30:00', 104);
+INSERT INTO appointment (appointmentid, patient, prepurse, physician, start_dt_time, end_dt_time, examinationroom) VALUES (15, 100000015, 15, 15, '2025-04-27 14:00:00', '2025-04-27 14:30:00', 105);
+INSERT INTO appointment (appointmentid, patient, prepurse, physician, start_dt_time, end_dt_time, examinationroom) VALUES (16, 100000016, 16, 16, '2025-04-28 09:00:00', '2025-04-28 09:30:00', 101);
+INSERT INTO appointment (appointmentid, patient, prepurse, physician, start_dt_time, end_dt_time, examinationroom) VALUES (17, 100000017, 17, 17, '2025-04-28 10:00:00', '2025-04-28 10:30:00', 102);
+INSERT INTO appointment (appointmentid, patient, prepurse, physician, start_dt_time, end_dt_time, examinationroom) VALUES (18, 100000018, 18, 18, '2025-04-28 11:00:00', '2025-04-28 11:30:00', 103);
+INSERT INTO appointment (appointmentid, patient, prepurse, physician, start_dt_time, end_dt_time, examinationroom) VALUES (19, 100000019, 19, 19, '2025-04-28 13:00:00', '2025-04-28 13:30:00', 104);
+INSERT INTO appointment (appointmentid, patient, prepurse, physician, start_dt_time, end_dt_time, examinationroom) VALUES (20, 100000020, 20, 20, '2025-04-28 14:00:00', '2025-04-28 14:30:00', 105);
+
+--Records for prescribes
+INSERT INTO prescribes (physician, patient, medication, date, appointment, dose) VALUES (1, 100000001, 1, '2025-04-25', 1, '10mg daily');
+INSERT INTO prescribes (physician, patient, medication, date, appointment, dose) VALUES (2, 100000002, 2, '2025-04-25', 2, '500mg twice daily');
+INSERT INTO prescribes (physician, patient, medication, date, appointment, dose) VALUES (3, 100000003, 3, '2025-04-25', 3, '20mg daily');
+INSERT INTO prescribes (physician, patient, medication, date, appointment, dose) VALUES (4, 100000004, 4, '2025-04-25', 4, '75mcg daily');
+INSERT INTO prescribes (physician, patient, medication, date, appointment, dose) VALUES (5, 100000005, 5, '2025-04-25', 5, '5mg daily');
+INSERT INTO prescribes (physician, patient, medication, date, appointment, dose) VALUES (6, 100000006, 6, '2025-04-26', 6, '50mg twice daily');
+INSERT INTO prescribes (physician, patient, medication, date, appointment, dose) VALUES (7, 100000007, 7, '2025-04-26', 7, '20mg daily');
+INSERT INTO prescribes (physician, patient, medication, date, appointment, dose) VALUES (8, 100000008, 8, '2025-04-26', 8, '25mg daily');
+INSERT INTO prescribes (physician, patient, medication, date, appointment, dose) VALUES (9, 100000009, 9, '2025-04-26', 9, '2 puffs as needed');
+INSERT INTO prescribes (physician, patient, medication, date, appointment, dose) VALUES (10, 100000010, 10, '2025-04-26', 10, '300mg three times daily');
+INSERT INTO prescribes (physician, patient, medication, date, appointment, dose) VALUES (11, 100000011, 11, '2025-04-27', 11, '25mg daily');
+INSERT INTO prescribes (physician, patient, medication, date, appointment, dose) VALUES (12, 100000012, 12, '2025-04-27', 12, '50mg daily');
+INSERT INTO prescribes (physician, patient, medication, date, appointment, dose) VALUES (13, 100000013, 13, '2025-04-27', 13, '500mg three times daily');
+INSERT INTO prescribes (physician, patient, medication, date, appointment, dose) VALUES (14, 100000014, 14, '2025-04-27', 14, '10mg daily for 7 days');
+INSERT INTO prescribes (physician, patient, medication, date, appointment, dose) VALUES (15, 100000015, 15, '2025-04-27', 15, '1 spray each nostril daily');
+INSERT INTO prescribes (physician, patient, medication, date, appointment, dose) VALUES (16, 100000016, 16, '2025-04-28', 16, '40mg daily');
+INSERT INTO prescribes (physician, patient, medication, date, appointment, dose) VALUES (17, 100000017, 17, '2025-04-28', 17, '10 units at bedtime');
+INSERT INTO prescribes (physician, patient, medication, date, appointment, dose) VALUES (18, 100000018, 18, '2025-04-28', 18, '5mg daily');
+INSERT INTO prescribes (physician, patient, medication, date, appointment, dose) VALUES (19, 100000019, 19, '2025-04-28', 19, '20mg daily');
+INSERT INTO prescribes (physician, patient, medication, date, appointment, dose) VALUES (20, 100000020, 20, '2025-04-28', 20, '500mg on day 1, 250mg for 4 days');
+
+-- Rcords for stay 
+INSERT INTO stay (stayid, patient, room, start_time, end_time) VALUES (1, 100000001, 101, '2025-01-01 08:00:00', '2025-01-03 10:30:00');
+INSERT INTO stay (stayid, patient, room, start_time, end_time) VALUES (2, 100000002, 102, '2025-01-02 09:15:00', '2025-01-05 14:00:00');
+INSERT INTO stay (stayid, patient, room, start_time, end_time) VALUES (3, 100000003, 103, '2025-01-03 11:30:00', '2025-01-04 16:45:00');
+INSERT INTO stay (stayid, patient, room, start_time, end_time) VALUES (4, 100000004, 201, '2025-01-03 14:00:00', '2025-01-08 09:00:00');
+INSERT INTO stay (stayid, patient, room, start_time, end_time) VALUES (5, 100000005, 202, '2025-01-04 10:00:00', '2025-01-06 11:30:00');
+INSERT INTO stay (stayid, patient, room, start_time, end_time) VALUES (6, 100000006, 203, '2025-01-05 08:30:00', '2025-01-07 13:15:00');
+INSERT INTO stay (stayid, patient, room, start_time, end_time) VALUES (7, 100000007, 301, '2025-01-06 09:45:00', '2025-01-09 10:00:00');
+INSERT INTO stay (stayid, patient, room, start_time, end_time) VALUES (8, 100000008, 302, '2025-01-07 07:30:00', '2025-01-10 08:45:00');
+INSERT INTO stay (stayid, patient, room, start_time, end_time) VALUES (9, 100000009, 303, '2025-01-08 12:15:00', '2025-01-11 15:30:00');
+INSERT INTO stay (stayid, patient, room, start_time, end_time) VALUES (10, 100000010, 101, '2025-01-09 11:00:00', '2025-01-12 12:00:00');
+INSERT INTO stay (stayid, patient, room, start_time, end_time) VALUES (11, 100000011, 102, '2025-01-10 14:30:00', '2025-01-13 09:15:00');
+INSERT INTO stay (stayid, patient, room, start_time, end_time) VALUES (12, 100000012, 103, '2025-01-11 16:00:00', '2025-01-14 11:30:00');
+INSERT INTO stay (stayid, patient, room, start_time, end_time) VALUES (13, 100000013, 201, '2025-01-12 08:45:00', '2025-01-15 10:45:00');
+INSERT INTO stay (stayid, patient, room, start_time, end_time) VALUES (14, 100000014, 202, '2025-01-13 13:00:00', '2025-01-16 14:30:00');
+INSERT INTO stay (stayid, patient, room, start_time, end_time) VALUES (15, 100000015, 203, '2025-01-14 10:30:00', '2025-01-17 08:00:00');
+INSERT INTO stay (stayid, patient, room, start_time, end_time) VALUES (16, 100000016, 301, '2025-01-15 15:15:00', '2025-01-18 16:45:00');
+INSERT INTO stay (stayid, patient, room, start_time, end_time) VALUES (17, 100000017, 302, '2025-01-16 09:30:00', '2025-01-19 10:15:00');
+INSERT INTO stay (stayid, patient, room, start_time, end_time) VALUES (18, 100000018, 303, '2025-01-17 07:45:00', '2025-01-20 13:30:00');
+INSERT INTO stay (stayid, patient, room, start_time, end_time) VALUES (19, 100000019, 101, '2025-01-18 12:00:00', '2025-01-21 09:00:00');
+INSERT INTO stay (stayid, patient, room, start_time, end_time) VALUES (20, 100000020, 102, '2025-01-19 16:30:00', '2025-01-22 11:45:00');
+
+-- Records for undergoes
+INSERT INTO undergoes (patient, procedure, stay, date, physician, assistingnurse) VALUES (100000001, 1, 1, '2025-01-02', 1, 1);
+INSERT INTO undergoes (patient, procedure, stay, date, physician, assistingnurse) VALUES (100000002, 2, 2, '2025-01-03', 2, 2);
+INSERT INTO undergoes (patient, procedure, stay, date, physician, assistingnurse) VALUES (100000003, 3, 3, '2025-01-04', 3, 3);
+INSERT INTO undergoes (patient, procedure, stay, date, physician, assistingnurse) VALUES (100000004, 4, 4, '2025-01-05', 4, 4);
+INSERT INTO undergoes (patient, procedure, stay, date, physician, assistingnurse) VALUES (100000005, 5, 5, '2025-01-05', 5, 5);
+INSERT INTO undergoes (patient, procedure, stay, date, physician, assistingnurse) VALUES (100000006, 1, 6, '2025-01-06', 6, 6);
+INSERT INTO undergoes (patient, procedure, stay, date, physician, assistingnurse) VALUES (100000007, 2, 7, '2025-01-07', 7, 7);
+INSERT INTO undergoes (patient, procedure, stay, date, physician, assistingnurse) VALUES (100000008, 3, 8, '2025-01-08', 8, 8);
+INSERT INTO undergoes (patient, procedure, stay, date, physician, assistingnurse) VALUES (100000009, 4, 9, '2025-01-09', 9, 9);
+INSERT INTO undergoes (patient, procedure, stay, date, physician, assistingnurse) VALUES (100000010, 5, 10, '2025-01-10', 10, 10);
+INSERT INTO undergoes (patient, procedure, stay, date, physician, assistingnurse) VALUES (100000011, 1, 11, '2025-01-11', 1, 1);
+INSERT INTO undergoes (patient, procedure, stay, date, physician, assistingnurse) VALUES (100000012, 2, 12, '2025-01-12', 2, 2);
+INSERT INTO undergoes (patient, procedure, stay, date, physician, assistingnurse) VALUES (100000013, 3, 13, '2025-01-13', 3, 3);
+INSERT INTO undergoes (patient, procedure, stay, date, physician, assistingnurse) VALUES (100000014, 4, 14, '2025-01-14', 4, 4);
+INSERT INTO undergoes (patient, procedure, stay, date, physician, assistingnurse) VALUES (100000015, 5, 15, '2025-01-15', 5, 5);
+INSERT INTO undergoes (patient, procedure, stay, date, physician, assistingnurse) VALUES (100000016, 1, 16, '2025-01-16', 6, 6);
+INSERT INTO undergoes (patient, procedure, stay, date, physician, assistingnurse) VALUES (100000017, 2, 17, '2025-01-17', 7, 7);
+INSERT INTO undergoes (patient, procedure, stay, date, physician, assistingnurse) VALUES (100000018, 3, 18, '2025-01-18', 8, 8);
+INSERT INTO undergoes (patient, procedure, stay, date, physician, assistingnurse) VALUES (100000019, 4, 19, '2025-01-19', 9, 9);
+INSERT INTO undergoes (patient, procedure, stay, date, physician, assistingnurse) VALUES (100000020, 5, 20, '2025-01-20', 10, 10);
+
+-- Records for on_call 
+INSERT INTO on_call (nurse, blockfloor, blockcode, oncallstart, oncallend) VALUES (1, 1, 101, '2025-01-01 08:00:00', '2025-01-01 20:00:00');
+INSERT INTO on_call (nurse, blockfloor, blockcode, oncallstart, oncallend) VALUES (2, 2, 102, '2025-01-01 20:00:00', '2025-01-02 08:00:00');
+INSERT INTO on_call (nurse, blockfloor, blockcode, oncallstart, oncallend) VALUES (3, 3, 103, '2025-01-02 08:00:00', '2025-01-02 20:00:00');
+INSERT INTO on_call (nurse, blockfloor, blockcode, oncallstart, oncallend) VALUES (4, 1, 201, '2025-01-02 20:00:00', '2025-01-03 08:00:00');
+INSERT INTO on_call (nurse, blockfloor, blockcode, oncallstart, oncallend) VALUES (5, 2, 202, '2025-01-03 08:00:00', '2025-01-03 20:00:00');
+INSERT INTO on_call (nurse, blockfloor, blockcode, oncallstart, oncallend) VALUES (6, 3, 203, '2025-01-03 20:00:00', '2025-01-04 08:00:00');
+INSERT INTO on_call (nurse, blockfloor, blockcode, oncallstart, oncallend) VALUES (7, 1, 301, '2025-01-04 08:00:00', '2025-01-04 20:00:00');
+INSERT INTO on_call (nurse, blockfloor, blockcode, oncallstart, oncallend) VALUES (8, 2, 302, '2025-01-04 20:00:00', '2025-01-05 08:00:00');
+INSERT INTO on_call (nurse, blockfloor, blockcode, oncallstart, oncallend) VALUES (9, 3, 303, '2025-01-05 08:00:00', '2025-01-05 20:00:00');
+INSERT INTO on_call (nurse, blockfloor, blockcode, oncallstart, oncallend) VALUES (10, 1, 101, '2025-01-05 20:00:00', '2025-01-06 08:00:00');
+INSERT INTO on_call (nurse, blockfloor, blockcode, oncallstart, oncallend) VALUES (1, 2, 102, '2025-01-06 08:00:00', '2025-01-06 20:00:00');
+INSERT INTO on_call (nurse, blockfloor, blockcode, oncallstart, oncallend) VALUES (2, 3, 103, '2025-01-06 20:00:00', '2025-01-07 08:00:00');
+INSERT INTO on_call (nurse, blockfloor, blockcode, oncallstart, oncallend) VALUES (3, 1, 201, '2025-01-07 08:00:00', '2025-01-07 20:00:00');
+INSERT INTO on_call (nurse, blockfloor, blockcode, oncallstart, oncallend) VALUES (4, 2, 202, '2025-01-07 20:00:00', '2025-01-08 08:00:00');
+INSERT INTO on_call (nurse, blockfloor, blockcode, oncallstart, oncallend) VALUES (5, 3, 203, '2025-01-08 08:00:00', '2025-01-08 20:00:00');
+INSERT INTO on_call (nurse, blockfloor, blockcode, oncallstart, oncallend) VALUES (6, 1, 301, '2025-01-08 20:00:00', '2025-01-09 08:00:00');
+INSERT INTO on_call (nurse, blockfloor, blockcode, oncallstart, oncallend) VALUES (7, 2, 302, '2025-01-09 08:00:00', '2025-01-09 20:00:00');
+INSERT INTO on_call (nurse, blockfloor, blockcode, oncallstart, oncallend) VALUES (8, 3, 303, '2025-01-09 20:00:00', '2025-01-10 08:00:00');
+INSERT INTO on_call (nurse, blockfloor, blockcode, oncallstart, oncallend) VALUES (9, 1, 101, '2025-01-10 08:00:00', '2025-01-10 20:00:00');
+INSERT INTO on_call (nurse, blockfloor, blockcode, oncallstart, oncallend) VALUES (10, 2, 102, '2025-01-10 20:00:00', '2025-01-11 08:00:00');
+
+-- Q1
+SELECT *
+FROM nurse
+WHERE registered = FALSE;
+
+-- Q2
+SELECT n.name AS nurse_name, d.name AS department_name
+FROM nurse n
+JOIN department d ON n.employeeid = d.head;
+
+-- Q3
+SELECT p.name AS physician_name, d.name AS department_name
+FROM physician p
+JOIN department d ON p.employeeid = d.head
+ORDER BY d.name;
+
+-- Q4
+SELECT COUNT(DISTINCT patient) AS patients_with_appointments
+FROM appointment;
+
+-- Q5
+SELECT roomnumber, blockfloor AS floor, blockcode AS block
+FROM room
+WHERE roomnumber = 202;
+
+-- Q6
+SELECT COUNT(*) AS available_rooms
+FROM room
+WHERE unavailable = FALSE;
+
+-- Q7
+SELECT COUNT(*) AS available_rooms
+FROM room
+WHERE unavailable = TRUE;
+
+-- Q8
+SELECT p.name AS physician_name, d.name AS department_name, aw.primaryaffiliation AS is_primary
+FROM physician p
+JOIN affiliated_with aw ON p.employeeid = aw.physician
+JOIN department d ON aw.department = d.departmentid
+ORDER BY p.name, d.name;
+
+-- Q9
+SELECT p.name AS physician_name, pr.name AS treatment_name, ti.certificationdate, ti.certificationexpires
+FROM physician p
+JOIN trained_in ti ON p.employeeid = ti.physician
+JOIN procedure pr ON ti.treatment = pr.code
+ORDER BY p.name, pr.name;
+
+-- Q10
+SELECT p.employeeid, p.name AS physician_name, p.position
+FROM physician p
+LEFT JOIN affiliated_with aw ON p.employeeid = aw.physician
+WHERE aw.physician IS NULL;
+
+-- Q11
+SELECT p.employeeid, p.name AS physician_name, p.position
+FROM physician p
+LEFT JOIN trained_in ti ON p.employeeid = ti.physician
+WHERE ti.physician IS NULL;
+
+-- Q12
+SELECT pt.name AS patient_name, ph.name AS primary_care_physician, ph.position AS physician_specialty
+FROM patient pt
+JOIN physician ph ON pt.pcp = ph.employeeid
+ORDER BY pt.name;
+
+-- Q13 
+SELECT p.name AS patient_name, COUNT(DISTINCT a.physician) AS number_of_physicians
+FROM patient p
+JOIN appointment a ON p.ssn = a.patient
+GROUP BY p.ssn, p.name
+ORDER BY number_of_physicians DESC, p.name;
+
+-- Q14 
+SELECT COUNT(DISTINCT patient) AS unique_patients_in_room_C
+FROM appointment
+WHERE examinationroom = 105;
+
+-- 15) Patients and their treatment room number
+SELECT pa.name, a.examinationroom
+FROM patient pa
+JOIN appointment a ON pa.ssn = a.patient;
+
+-- 16) Nurses and rooms where they assist physicians
+SELECT n.name AS nurse_name, a.examinationroom
+FROM nurse n
+JOIN appointment a ON n.employeeid = a.prepnurse;
+
+-- 17) Patients who had appointment on April 25th at 10am
+SELECT pa.name AS patient_name, ph.name AS physician_name, n.name AS nurse_name, a.examinationroom
+FROM appointment a
+JOIN patient pa ON a.patient = pa.ssn
+JOIN physician ph ON a.physician = ph.employeeid
+LEFT JOIN nurse n ON a.prepnurse = n.employeeid
+WHERE a.start_dt_time = '2023-04-25 10:00:00';
+
+-- 18) Patients and physicians without nurse assistance
+SELECT pa.name AS patient_name, ph.name AS physician_name
+FROM appointment a
+JOIN patient pa ON a.patient = pa.ssn
+JOIN physician ph ON a.physician = ph.employeeid
+WHERE a.prepnurse IS NULL;
+
+-- 19) Patients, physicians, and medication
+SELECT pa.name AS patient_name, ph.name AS physician_name, m.name AS medication_name
+FROM prescribes pr
+JOIN physician ph ON pr.physician = ph.employeeid
+JOIN patient pa ON pr.patient = pa.ssn
+JOIN medication m ON pr.medication = m.code;
+
+-- 20) Patients who made advanced appointments, and their physicians and medication
+SELECT pa.name AS patient_name, ph.name AS physician_name, m.name AS medication_name
+FROM appointment a
+JOIN prescribes pr ON a.appointmentid = pr.appointment
+JOIN physician ph ON pr.physician = ph.employeeid
+JOIN patient pa ON pr.patient = pa.ssn
+JOIN medication m ON pr.medication = m.code;
+
+-- 21) Patients and medications without appointment
+SELECT pa.name, m.name
+FROM prescribes pr
+JOIN patient pa ON pr.patient = pa.ssn
+JOIN medication m ON pr.medication = m.code
+LEFT JOIN appointment a ON pr.appointment = a.appointmentid
+WHERE a.appointmentid IS NULL;
+
+-- 22) Available rooms per block
+SELECT blockcode, COUNT(*) AS available_rooms
+FROM room
+WHERE unavailable = 'false'
+GROUP BY blockcode;
+
+-- 23) Available rooms per floor
+SELECT blockfloor, COUNT(*) AS available_rooms
+FROM room
+WHERE unavailable = 'false'
+GROUP BY blockfloor;
+
+-- 24) Available rooms per block and floor
+SELECT blockfloor, blockcode, COUNT(*) AS available_rooms
+FROM room
+WHERE unavailable = 'false'
+GROUP BY blockfloor, blockcode;
+
+-- 25) Unavailable rooms per block and floor
+SELECT blockfloor, blockcode, COUNT(*) AS unavailable_rooms
+FROM room
+WHERE unavailable = 'true'
+GROUP BY blockfloor, blockcode;
+
+-- 26) Floor with maximum available rooms
+SELECT blockfloor
+FROM room
+WHERE unavailable = 'false'
+GROUP BY blockfloor
+ORDER BY COUNT(*) DESC
+LIMIT 1;
+
+-- 27) Floor with minimum available rooms
+SELECT blockfloor
+FROM room
+WHERE unavailable = 'false'
+GROUP BY blockfloor
+ORDER BY COUNT(*) ASC
+LIMIT 1;
+
+-- 28) Patients and their admission location (block, floor, room)
+SELECT pa.name, r.blockcode, r.blockfloor, r.roomnumber
+FROM stay s
+JOIN patient pa ON s.patient = pa.ssn
+JOIN room r ON s.room = r.roomnumber;
+
+-- 29) Nurses and block they are booked for on-call
+SELECT n.name, o.blockcode
+FROM nurse n
+JOIN on_call o ON n.employeeid = o.nurse;
+
+-- 30) Full treatment report for patients
+SELECT pa.name AS patient_name, ph.name AS physician_name, n.name AS nurse_name, pr.name AS procedure_name, s.end_time AS release_date, r.roomnumber, r.blockfloor, r.blockcode
+FROM stay s
+JOIN patient pa ON s.patient = pa.ssn
+JOIN undergoes u ON s.stayid = u.stay
+JOIN physician ph ON u.physician = ph.employeeid
+LEFT JOIN nurse n ON u.assistingnurse = n.employeeid
+JOIN procedure pr ON u.procedure = pr.code
+JOIN room r ON s.room = r.roomnumber;
+
+-- 31) Physicians performed procedure without certification
+SELECT DISTINCT p.name
+FROM undergoes u
+JOIN physician p ON u.physician = p.employeeid
+LEFT JOIN trained_in t ON u.physician = t.physician AND u.procedure = t.treatment
+WHERE t.physician IS NULL;
+
+-- 32) Physicians, procedures, dates, patients for uncertified operations
+SELECT p.name AS physician_name, pr.name AS procedure_name, u.date, pa.name AS patient_name
+FROM undergoes u
+JOIN physician p ON u.physician = p.employeeid
+JOIN procedure pr ON u.procedure = pr.code
+JOIN patient pa ON u.patient = pa.ssn
+LEFT JOIN trained_in t ON u.physician = t.physician AND u.procedure = t.treatment
+WHERE t.physician IS NULL;
+
+-- 33) Physicians completed procedures after certificate expired
+SELECT DISTINCT p.name, p.position
+FROM undergoes u
+JOIN physician p ON u.physician = p.employeeid
+JOIN trained_in t ON u.physician = t.physician AND u.procedure = t.treatment
+WHERE u.date > t.certificationexpires;
+
+-- 34) Full report for expired certificate procedures
+SELECT p.name, p.position, pr.name AS procedure_name, u.date, pa.name AS patient_name, t.certificationexpires
+FROM undergoes u
+JOIN physician p ON u.physician = p.employeeid
+JOIN procedure pr ON u.procedure = pr.code
+JOIN patient pa ON u.patient = pa.ssn
+JOIN trained_in t ON u.physician = t.physician AND u.procedure = t.treatment
+WHERE u.date > t.certificationexpires;
+
+-- 35) Nurses on-call for room 122
+SELECT DISTINCT n.name
+FROM nurse n
+JOIN on_call o ON n.employeeid = o.nurse
+JOIN room r ON o.blockfloor = r.blockfloor AND o.blockcode = r.blockcode
+WHERE r.roomnumber = 122;
+
+-- 36) Patients prescribed by their primary care physician
+SELECT pa.name AS patient_name, ph.name AS physician_name
+FROM prescribes pr
+JOIN patient pa ON pr.patient = pa.ssn
+JOIN physician ph ON pr.physician = ph.employeeid
+WHERE pa.pcp = ph.employeeid;
+
+-- 37) Patients undergone expensive procedures (>5000) and their primary physician
+SELECT pa.name AS patient_name, ph.name AS physician_name
+FROM undergoes u
+JOIN procedure pr ON u.procedure = pr.code
+JOIN patient pa ON u.patient = pa.ssn
+JOIN physician ph ON pa.pcp = ph.employeeid
+WHERE pr.cost > 5000;
+
+-- 38) Patients with two appointments with registered nurse prepping
+SELECT pa.name AS patient_name, ph.name AS physician_name
+FROM appointment a
+JOIN patient pa ON a.patient = pa.ssn
+JOIN nurse n ON a.prepnurse = n.employeeid
+JOIN physician ph ON pa.pcp = ph.employeeid
+WHERE n.registered = 'true'
+GROUP BY pa.name, ph.name
+HAVING COUNT(a.appointmentid) >= 2;
+
+-- 39) Patients whose primary physician is not a department head
+SELECT pa.name AS patient_name, ph.name AS physician_name
+FROM patient pa
+JOIN physician ph ON pa.pcp = ph.employeeid
+LEFT JOIN department d ON ph.employeeid = d.head
+WHERE d.head IS NULL;
