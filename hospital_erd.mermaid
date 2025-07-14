@@ -1,0 +1,143 @@
+erDiagram
+    DEPARTMENT {
+        int departmentid PK
+        varchar name
+        int head
+    }
+    
+    PHYSICIAN {
+        int employeeid PK
+        varchar name
+        varchar position
+        int ssn
+    }
+    
+    PATIENT {
+        int ssn PK
+        varchar name
+        varchar address
+        varchar phone
+        int insuranceid
+        int pcp FK
+    }
+    
+    MEDICATION {
+        int code PK
+        varchar name
+        varchar brand
+        varchar description
+    }
+    
+    APPOINTMENT {
+        int appointmentid PK
+        int patient FK
+        int prepurse
+        int physician FK
+        date start_dt_time
+        date end_dt_time
+        int examinationroom
+    }
+    
+    PROCEDURE {
+        int code PK
+        varchar name
+        real cost
+    }
+    
+    NURSE {
+        int employeeid PK
+        varchar name
+        varchar position
+        boolean registered
+        int ssn
+    }
+    
+    BLOCK {
+        int blockfloor PK
+        int blockcode PK
+    }
+    
+    ROOM {
+        int roomnumber PK
+        varchar roomtype
+        int blockfloor FK
+        int blockcode FK
+        boolean unavailable
+    }
+    
+    STAY {
+        int stayid PK
+        int patient FK
+        int room FK
+        date start_time
+        date end_time
+    }
+    
+    AFFILIATED_WITH {
+        int physician PK,FK
+        int department PK,FK
+        boolean primaryaffiliation
+    }
+    
+    PRESCRIBES {
+        int physician PK,FK
+        int patient PK,FK
+        int medication PK,FK
+        date date PK
+        int appointment FK
+        varchar dose
+    }
+    
+    TRAINED_IN {
+        int physician PK,FK
+        int treatment PK,FK
+        date certificationdate
+        date certificationexpires
+    }
+    
+    ON_CALL {
+        int nurse PK,FK
+        int blockfloor PK,FK
+        int blockcode PK,FK
+        date oncallstart PK
+        date oncallend PK
+    }
+    
+    UNDERGOES {
+        int patient PK,FK
+        int procedure PK,FK
+        int stay PK,FK
+        date date PK
+        int physician FK
+        int assistingnurse FK
+    }
+
+    %% Relationships
+    DEPARTMENT ||--o{ PHYSICIAN : "head"
+    PHYSICIAN ||--o{ AFFILIATED_WITH : "works_in"
+    DEPARTMENT ||--o{ AFFILIATED_WITH : "has"
+    
+    PHYSICIAN ||--o{ PATIENT : "primary_care"
+    PATIENT ||--o{ APPOINTMENT : "schedules"
+    PHYSICIAN ||--o{ APPOINTMENT : "attends"
+    
+    PHYSICIAN ||--o{ PRESCRIBES : "prescribes"
+    PATIENT ||--o{ PRESCRIBES : "receives"
+    MEDICATION ||--o{ PRESCRIBES : "prescribed"
+    APPOINTMENT ||--o{ PRESCRIBES : "during"
+    
+    PHYSICIAN ||--o{ TRAINED_IN : "certified"
+    PROCEDURE ||--o{ TRAINED_IN : "requires"
+    
+    BLOCK ||--o{ ROOM : "contains"
+    BLOCK ||--o{ ON_CALL : "covered_by"
+    NURSE ||--o{ ON_CALL : "assigned"
+    
+    PATIENT ||--o{ STAY : "admitted"
+    ROOM ||--o{ STAY : "occupies"
+    
+    PATIENT ||--o{ UNDERGOES : "receives"
+    PROCEDURE ||--o{ UNDERGOES : "performed"
+    STAY ||--o{ UNDERGOES : "during"
+    PHYSICIAN ||--o{ UNDERGOES : "performs"
+    NURSE ||--o{ UNDERGOES : "assists"
